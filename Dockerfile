@@ -1,11 +1,10 @@
-FROM python:3.12
+FROM python:3.10-bullseye
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY . .
 
 RUN pip install --progress-bar off --no-cache-dir -r requirements.txt
 
-COPY . .
 
-CMD ["python", "main.py"]
+

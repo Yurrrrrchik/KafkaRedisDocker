@@ -1,19 +1,27 @@
+version: '3.9'
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
+    hostname: zookeeper
     container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-    network_mode: host
+    healthcheck:
+      test: [ "CMD", "nc", "-zv", "localhost", "2181" ]
+      interval: 20s
+      timeout: 10s
+      retries: 3
 
   kafka:
     image: confluentinc/cp-kafka:latest
     container_name: kafka
     ports:
       - "9092:9092"
+      - "29092:29092"
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
@@ -22,18 +30,27 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-    network_mode: host
+    healthcheck:
+      test: [ "CMD", "nc", "-zv", "localhost", "9092" ]
+      interval: 20s
+      timeout: 10s
+      retries: 3
 
   redis:
-    image: redis:latest
+    image: redislabs/redismod
     container_name: redis
-    ports:
-      - "6379:6379"
-    network_mode: host
 
-  image_service:
+  image-service:
     build: .
+    command: bash -c "python main.py"
     depends_on:
-      - kafka
-      - redis
-    network_mode: host
+      kafka:
+        condition: service_healthy
+
+  image-producer:
+    build: .
+    command: bash -c "python image_producer.py"
+    depends_on:
+      kafka:
+        condition: service_healthy
+
