@@ -13,8 +13,8 @@ r = Redis(host='redis', port=6379, db=0)
 
 class ImageLoader(Process):
     """
-    The process takes queue from which NumPy
-    arrays will be taken as parametr.
+    The process takes as parametr queue
+    from which NumPynarrays will be taken.
     """
     def __init__(self, image_queue):
         Process.__init__(self)
