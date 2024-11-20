@@ -40,7 +40,7 @@ services:
 
   image-service:
     build: .
-    command: bash -c "sleep 150 && python main.py"
+    command: bash -c "sleep 10 && python main.py"
     volumes:
       - saved_images:/app/saved_images
     depends_on:
