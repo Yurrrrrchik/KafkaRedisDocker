@@ -20,11 +20,11 @@ if __name__ == '__main__':
         loader = ImageLoader(image_queue)
         transmitter.start()
         loader.start()
+        transmitter.join()
+        loader.join()
     except KeyboardInterrupt:
         transmitter.terminate()
-        transmitter.join()
         loader.terminate()
-        loader.join()
         logging.info("Extra program finish")
 
 
