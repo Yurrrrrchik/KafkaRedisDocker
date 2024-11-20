@@ -1,7 +1,7 @@
 import logging
 from multiprocessing import Process
 
-from confluent_kafka import Consumer
+from confluent_kafka import Consumer, KafkaError
 from numpy import frombuffer, float32
 
 
@@ -37,9 +37,19 @@ class ImageTransmitter(Process):
                 if message is None:
                     continue
 
-                image_array = frombuffer(message.value(), dtype=float32)
-                self.image_queue.put((message.key(), image_array))
-                logging.info(f"{message.key()} is in queue")
+                if message.error():
+
+                    if message.error().code() == KafkaError._PARTITION_EOF:
+                        logging.error(f'Reached end of topic {message.topic()} [{message.partition()}] '
+                              f'at offset {message.offset()}')
+
+                    else:
+                        logging.error(f'Error occured: {message.error()}')
+
+                else:
+                    image_array = frombuffer(message.value(), dtype=float32)
+                    self.image_queue.put((message.key(), image_array))
+                    logging.info(f"{message.key()} is in queue")
 
         except ValueError:
             pass
