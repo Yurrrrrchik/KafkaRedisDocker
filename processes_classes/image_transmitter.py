@@ -27,13 +27,23 @@ class ImageTransmitter(Process):
         Tuple of message key and NumPy array places
         into a queue for further processing.
         """
-        consumer = Consumer(self.config)
-        consumer.subscribe([self.topic])
-        while True:
-            message = consumer.poll()
-            if message is None:
-                continue
-            image_array = frombuffer(message.value(), dtype=float32)
-            self.image_queue.put((message.key(), image_array))
-            logging.info(f"{message.key()} is in queue")
-        consumer.close()
+        try:
+            self.running = True
+            consumer = Consumer(self.config)
+            consumer.subscribe([self.topic])
+
+            while self.running:
+                message = consumer.poll()
+
+                if message is None:
+                    continue
+
+                image_array = frombuffer(message.value(), dtype=float32)
+                self.image_queue.put((message.key(), image_array))
+                logging.info(f"{message.key()} is in queue")
+
+        except ValueError:
+            pass
+
+        except KeyboardInterrupt:
+            consumer.close()

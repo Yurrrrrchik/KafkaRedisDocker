@@ -12,9 +12,11 @@ def produce_images():
     a Kafka topic named 'test_topic', using the filename as the key.
     Flushes the producer to ensure that all messages are sent.
     """
-    config = {'bootstrap.servers': 'kafka:29092',}
+    config = {'bootstrap.servers': 'localhost:9092',}
     producer = Producer(config)
+
     for filename in os.listdir('images'):
+
         with open(os.path.join('images', filename), "rb") as image_file:
             blob = b64encode(image_file.read())
             producer.produce('test_topic', key=filename, value=blob)
