@@ -41,7 +41,7 @@ class ImageTransmitter(Process):
 
                     if message.error().code() == KafkaError._PARTITION_EOF:
                         logging.error(f'Reached end of topic {message.topic()} [{message.partition()}] '
-                              f'at offset {message.offset()}')
+                                      f'at offset {message.offset()}')
 
                     else:
                         logging.error(f'Error occured: {message.error()}')
