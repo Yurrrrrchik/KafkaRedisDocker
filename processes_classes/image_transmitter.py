@@ -28,11 +28,10 @@ class ImageTransmitter(Process):
         into a queue for further processing.
         """
         try:
-            self.running = True
             consumer = Consumer(self.config)
             consumer.subscribe([self.topic])
 
-            while self.running:
+            while True:
                 message = consumer.poll()
 
                 if message is None:
